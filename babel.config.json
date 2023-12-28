@@ -1,0 +1,3 @@
+{
+    "presets": ["@babel/preset-env"] //src/sever.js에 대해 babel-node 명령문을 실행
+}
