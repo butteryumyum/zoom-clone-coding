@@ -17,4 +17,11 @@ const server = http.createServer(app); //requestListener 경로를 지정해야�
 // webSocket 서버
 const wss = new WebSocketServer({ server }); //서버를 전달(pass)해서 서버 두개를 동시에 구동
 
+function handleConnection (socket) {
+    console.log(socket);
+}
+
+
+wss.on("connection", handleConnection);
+
 server.listen(3000, handleListen);
