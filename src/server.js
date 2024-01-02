@@ -17,11 +17,10 @@ const server = http.createServer(app); //requestListener 경로를 지정해야�
 // webSocket 서버
 const wss = new WebSocketServer({ server }); //서버를 전달(pass)해서 서버 두개를 동시에 구동
 
-function handleConnection (socket) {
-    console.log(socket);
-}
-
-
-wss.on("connection", handleConnection);
-
+wss.on("connection", (socket) => { //connection 이 생겼을 때, socket으로 메시지를 보냄
+    console.log("Connected to Browser ✅")
+    socket.on("close", () => console.log("Disconnected from Server ❌")); //브라우저가 닫혔을 때 log를 띄움
+    socket.send("hello"); 
+});
+ 
 server.listen(3000, handleListen);
