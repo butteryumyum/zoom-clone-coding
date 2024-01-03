@@ -12,3 +12,6 @@ socket.addEventListener("close", () => { //서버와 연결이 끊어졌을때
     console.log("Disconnected from Server ❌");
 });
 
+setTimeout(() =>{
+    socket.send("hello from the Browser");
+}, 5000);
