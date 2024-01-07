@@ -21,15 +21,17 @@ function OnSocketClose() {
     console.log("Disconnected from Server ❌")
 }
 
-function OnSocketMessage(message) {
-    console.log(message.toString('utf8'));
-}
+const sockets = []; //누군가 연결하면 connection을 이 DB?(array)에 넣을꺼임
 
 wss.on("connection", (socket) => { //connection 이 생겼을 때, socket으로 메시지를 보냄
+    sockets.push(socket);
     console.log("Connected to Browser ✅")
-    socket.on("close", OnSocketclose); //브라우저가 닫혔을 때 log를 띄움
-    socket.on("message", OnSocketMessage);
-    socket.send("hello"); 
+    socket.on("close", OnSocketClose); //브라우저가 닫혔을 때 log를 띄움
+    socket.on('message', (message) => {
+        console.log(message.toString("utf-8")); //데이터타입 toString으로 바꿈(버전이슈)
+        sockets.forEach(aSocket => aSocket.send(message.toString()));//각 브라우저를 aSocket이라 칭하고 메시지를 보냄
+        });
+    
 });
  
 server.listen(3000, handleListen);

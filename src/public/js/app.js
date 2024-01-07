@@ -1,4 +1,6 @@
 
+const messageList = document.querySelector("ul");
+const messageForm = document.querySelector("form");
 const socket = new WebSocket(`ws://${window.location.host}`)
 
 socket.addEventListener("open", () => {
@@ -12,6 +14,12 @@ socket.addEventListener("close", () => { //서버와 연결이 끊어졌을때
     console.log("Disconnected from Server ❌");
 });
 
-setTimeout(() =>{
-    socket.send("hello from the Browser");
-}, 5000);
+function handleSubmit(event) {
+    event.preventDefault();
+    const input = messageForm.querySelector("input"); //form에서 input 찾아오기
+    socket.send(input.value); //front-end의 form에서 back-end로 보냄
+    input.value = ""; //내용 비우기
+    
+}
+
+messageForm.addEventListener("submit", handleSubmit);
