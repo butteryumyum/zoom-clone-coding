@@ -24,13 +24,20 @@ function OnSocketClose() {
 const sockets = []; //누군가 연결하면 connection을 이 DB?(array)에 넣을꺼임
 
 wss.on("connection", (socket) => { //connection 이 생겼을 때, socket으로 메시지를 보냄
+    socket["nickname"] = "Anon"; //socket에 nickname(익명)을 줌
     sockets.push(socket);
     console.log("Connected to Browser ✅")
     socket.on("close", OnSocketClose); //브라우저가 닫혔을 때 log를 띄움
-    socket.on('message', (message) => {
-        console.log(message.toString("utf-8")); //데이터타입 toString으로 바꿈(버전이슈)
-        sockets.forEach(aSocket => aSocket.send(message.toString()));//각 브라우저를 aSocket이라 칭하고 메시지를 보냄
-        });
+    socket.on('message', (msg) => {
+        const message = JSON.parse(msg); 
+        switch (message.type) {
+            case "new_message"://type이 메시지일 경우 화면에 표시
+                sockets.forEach(aSocket => aSocket.send(`${socket.nickname}: ${message.payload}`));//닉네임 property를 socket object에 저장
+            case "nickname": //type이 닉네임일 경우 닉네임을 socket에 넣어줌
+                socket["nickname"] = message.payload
+        }
+    });
+        
     
 });
  
