@@ -19,11 +19,17 @@ const httpServer = http.createServer(app); //requestListener 경로를 지정해
 const wsServer = SocketIO(httpServer);
 
 wsServer.on("connection", socket => {
-    console.log(socket); //backend에서 connection을 받음
-})
+   socket.on("enter_room", (roomName, done) => {
+    console.log(roomName);
+    setTimeout(() => {
+        done("hello from the backed");
+    },10000);
+   }); 
+});
 
 
-/*const sockets = []; //누군가 연결하면 connection을 이 DB?(array)에 넣을꺼임
+/*
+const sockets = []; //누군가 연결하면 connection을 이 DB?(array)에 넣을꺼임
 
 wss.on("connection", (socket) => { //connection 이 생겼을 때, socket으로 메시지를 보냄
     socket["nickname"] = "Anon"; //socket에 nickname(익명)을 줌
@@ -41,7 +47,8 @@ wss.on("connection", (socket) => { //connection 이 생겼을 때, socket으로 
             break;
         }
     });
-});*/
+});
+*/
  
 httpServer.listen(3000, handleListen);
 
