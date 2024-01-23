@@ -19,11 +19,14 @@ const httpServer = http.createServer(app); //requestListener 경로를 지정해
 const wsServer = SocketIO(httpServer);
 
 wsServer.on("connection", socket => {
-   socket.on("enter_room", (roomName, done) => {
-    console.log(roomName);
-    setTimeout(() => {
-        done("hello from the backed");
-    },10000);
+    socket.onAny((event) => {
+        console.log(`Socket Event: ${event}`);
+    });
+   socket.on("enter_room", (roomName, done) => { //frontend에서 받은 done에 해당하는 ShowRoom 값을 받음
+    socket.join(roomName);
+    done();
+    
+    
    }); 
 });
 
