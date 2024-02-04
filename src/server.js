@@ -24,10 +24,17 @@ wsServer.on("connection", socket => {
     });
    socket.on("enter_room", (roomName, done) => { //frontend에서 받은 done에 해당하는 ShowRoom 값을 받음
     socket.join(roomName);
-    done();
-    
-    
+    done(); //fornt에 있는 showRoom()을 실행함
+    socket.to(roomName).emit("welcome"); //event를 참가한 방의 사람들에게 emit해줌
    }); 
+   socket.on("disconnecting", () => {
+    socket.rooms.forEach(room => socket.to(room).emit("bye")); //클라이언트와 서버가 연결이 끊어지기 전에 bye event를 emit
+   });
+   socket.on("new_message", (msg, room, done) => {
+    socket.to(room).emit("new_message", msg); //payload는 방금 받은 메시지(msg를 의미)
+    done(); //done function 호출
+   })
+
 });
 
 
