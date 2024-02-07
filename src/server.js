@@ -18,9 +18,28 @@ const httpServer = http.createServer(app); //requestListener 경로를 지정해
 //socketio 서버
 const wsServer = SocketIO(httpServer);
 
+
+function publicRooms() {
+    const {
+        sockets: {
+            adapter: 
+                {sids, rooms},
+        },
+    } = wsServer; //wsServer안에서 sockets안의 adapter를 갖고  sids와 rooms를 갖고옴 
+    
+    const publicRooms = [];
+    rooms.forEach((_, key) => { //public룸을 가져오는 코드
+        if(sids.get(key) === undefined) {//sids와 rooms의 id(key)거 서로 맞지 않으면 undefined이므로 public방을 찾음
+            publicRooms.push(key);
+        }
+    });
+    return publicRooms;
+}
+
 wsServer.on("connection", (socket) => {
     socket["nickname"] = "Unknown";
     socket.onAny((event) => {
+        console.log(wsServer.sockets.adapter)
         console.log(`Socket Event: ${event}`);
     });
 
@@ -28,10 +47,17 @@ wsServer.on("connection", (socket) => {
    socket.on("enter_room", (roomName, done) => { //frontend에서 받은 done에 해당하는 ShowRoom 값을 받음
     socket.join(roomName);
     done(); //fornt에 있는 showRoom()을 실행함
-    socket.to(roomName).emit("welcome", socket.nickname);
+    socket.to(roomName).emit("welcome", socket.nickname); //메시지를 하나의 socket에만 보냄
+    wsServer.sockets.emit("room_change", publicRooms()); //메시지를 모든 socket에 보냄
+     
    }); 
-   socket.on("disconnecting", () => {
-    socket.rooms.forEach(room => socket.to(room).emit("bye", socket.nickname));
+   socket.on("disconnecting", () => { //socket이 방을 떠나기 직전에 실행되는 event
+    socket.rooms.forEach((room) => 
+        socket.to(room).emit("bye", socket.nickname)
+    );
+   });
+   socket.on('disconnect', () => { //
+        wsServer.sockets.emit("room_change", publicRooms());
    });
 
 
