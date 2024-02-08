@@ -36,6 +36,11 @@ function publicRooms() {
     return publicRooms;
 }
 
+function countRoom(roomName) {
+    return wsServer.sockets .adapter.rooms.get(roomName)?.size
+}
+
+
 wsServer.on("connection", (socket) => {
     socket["nickname"] = "Unknown";
     socket.onAny((event) => {
@@ -47,13 +52,13 @@ wsServer.on("connection", (socket) => {
    socket.on("enter_room", (roomName, done) => { //frontend에서 받은 done에 해당하는 ShowRoom 값을 받음
     socket.join(roomName);
     done(); //fornt에 있는 showRoom()을 실행함
-    socket.to(roomName).emit("welcome", socket.nickname); //메시지를 하나의 socket에만 보냄
+    socket.to(roomName).emit("welcome", socket.nickname, countRoom(roomName)); //메시지를 하나의 socket에만 보냄
     wsServer.sockets.emit("room_change", publicRooms()); //메시지를 모든 socket에 보냄
      
    }); 
    socket.on("disconnecting", () => { //socket이 방을 떠나기 직전에 실행되는 event
     socket.rooms.forEach((room) => 
-        socket.to(room).emit("bye", socket.nickname)
+        socket.to(room).emit("bye", socket.nickname, countRoom(room) - 1)
     );
    });
    socket.on('disconnect', () => { //
