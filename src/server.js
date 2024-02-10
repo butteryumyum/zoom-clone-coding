@@ -1,5 +1,6 @@
 import  express  from "express";
-import SocketIO from "socket.io";
+import {Server} from "socket.io";
+import {instrument} from "@socket.io/admin-ui";
 import http from "http";
 
 
@@ -16,7 +17,16 @@ const handleListen = () => console.log('Listening on http://localhost:3000');
 //http 서버
 const httpServer = http.createServer(app); //requestListener 경로를 지정해야함. 그게 위에서 만든 app이 됨 
 //socketio 서버
-const wsServer = SocketIO(httpServer);
+const wsServer = new Server(httpServer, {
+    cors: {
+        origin: ["http://admin.socket.io"],
+        credentials: true,
+    }
+});
+
+instrument(wsServer,{
+    auth: false,
+});
 
 
 function publicRooms() {
