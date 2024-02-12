@@ -105,6 +105,6 @@ wss.on("connection", (socket) => { //connection 이 생겼을 때, socket으로 
     });
 });
 */
- 
+ //채팅파트 끝 이제 비디오 파트로 넘어감
 httpServer.listen(3000, handleListen);
 
