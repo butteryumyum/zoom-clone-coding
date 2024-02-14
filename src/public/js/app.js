@@ -13,10 +13,14 @@ async function getCameras() {
     try{
         const devices = await navigator.mediaDevices.enumerateDevices();
         const cameras = devices.filter(device => device.kind === "videoinput");
+        const currentCamera = myStream.getVideoTracks()[0]; //videoTrack의 첫번째 track을 가져옴
         cameras.forEach((camera) => {
             const option = document.createElement("option");
             option.value = camera.deviceId;
             option.innerText = camera.label;
+            if (currentCamera.label === camera.label) { //사용하는 카메라가 제일 먼저 보여지게 만듦
+                option.selected = true; //이 option은 선택된 것이라 해줌
+            }
             camerasSelect.appendChild(option);
         })
     }catch(e) {
@@ -25,15 +29,25 @@ async function getCameras() {
     }
 }
 
-async function getMidia() {
+async function getMidia(deviceId) {
+    const initialConstrains = { //디바이스id가 없을 때 실행
+        audio: true,
+        video: {facingMode: "user"},
+    };
+    const cameraConstraints = { //디바이스id가 있을 때 실행
+        audio: true,  
+        video: {deviceId: { exact: deviceId} },
+    };
     try {
         myStream = await navigator.mediaDevices.getUserMedia(
-            {
-                audio: true,
-                video: true,
-            });
+            deviceId? cameraConstraints : initialConstrains
+            ); //deviceid가 있다면 cameraConstraints 사용, 없으면 initialConstraints
         myFace.srcObject = myStream;
+
+    if (!deviceId) { //device가 없다면 카메라를 가져옴 처음 딱 한번만 실행됨
         await getCameras();
+    }
+       
     } catch(e) {
         console.log(e); //에러가 있다면 콘솔에 보여줌
     }
@@ -67,5 +81,16 @@ function handleCameraClick() {
     }
 }
 
+async function handleCameraChange() {
+    await getMidia(camerasSelect.value);
+    if (muted) { //mute상태로 카메라 전환시 mute가 유지되게 하는 코드
+        myStream.getAudioTracks().forEach((track) => (track.enabled = false));
+        } else {
+        myStream.getAudioTracks().forEach((track) => (track.enabled = true));
+        }
+    
+}
+
 muteBtn.addEventListener("click", handleMuteClick); 
 cameraBtn.addEventListener("click", handleCameraClick); 
+camerasSelect.addEventListener("input", handleCameraChange);
