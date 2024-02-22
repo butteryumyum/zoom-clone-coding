@@ -24,6 +24,9 @@ wsServer.on("connection", socket => {
         done();
         socket.to(roomName).emit("welcome"); 
     });
+    socket.on("offer",(offer, roomName) => {
+        socket.to(roomName).emit("offer", offer); //이벤트가 다시 브라우저로 offer와 같이 가게됨.
+    });
 });
 
 const handleListen = () => console.log('Listening on http://localhost:3000');
