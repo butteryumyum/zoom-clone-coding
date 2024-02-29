@@ -19,13 +19,19 @@ const httpServer = http.createServer(app); //requestListener 경로를 지정해
 const wsServer = SocketIo(httpServer); 
 
 wsServer.on("connection", socket => {
-    socket.on("join_room", (roomName, done) => {
+    socket.on("join_room", (roomName) => {
         socket.join(roomName);
-        done();
+        
         socket.to(roomName).emit("welcome"); 
     });
     socket.on("offer",(offer, roomName) => {
         socket.to(roomName).emit("offer", offer); //이벤트가 다시 브라우저로 offer와 같이 가게됨.
+    });
+    socket.on("answer", (answer, roomName) => {
+        socket.to(roomName).emit("answer", answer)
+    })
+    socket.on("ice", (ice, roomName) => {
+        socket.to(roomName).emit("ice", ice);
     });
 });
 
