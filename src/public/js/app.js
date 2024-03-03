@@ -47,7 +47,7 @@ async function getMidia(deviceId) {
     };
     try {
         myStream = await navigator.mediaDevices.getUserMedia(
-            deviceId? cameraConstraints : initialConstrains
+            deviceId ? cameraConstraints : initialConstrains
             ); //deviceid가 있다면 cameraConstraints 사용, 없으면 initialConstraints
         myFace.srcObject = myStream;
 
@@ -90,13 +90,21 @@ function handleCameraClick() {
 
 async function handleCameraChange() {
     await getMidia(camerasSelect.value);
+    if(myPeerConnection){
+        const videoTrack = myStream.getVideoTracks()[0]; //선택한 장치로 업데이트된 videoTrack을 받음
+        const videoSender = myPeerConnection
+        .getSenders()
+        .find((sender) => sender.track.kind === "video"); //track의 kind:video를 가진 sender를 찾고자함
+        videoSender.replaceTrack(videoTrack);
+    }
+
     if (muted) { //mute상태로 카메라 전환시 mute가 유지되게 하는 코드
         myStream.getAudioTracks().forEach((track) => (track.enabled = false));
         } else {
         myStream.getAudioTracks().forEach((track) => (track.enabled = true));
         }
-    
-}
+    }
+
 
 muteBtn.addEventListener("click", handleMuteClick); 
 cameraBtn.addEventListener("click", handleCameraClick); 
